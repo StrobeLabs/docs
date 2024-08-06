@@ -1,71 +1,129 @@
 ---
-title: Introduction
-description: 'Welcome to the home of your new documentation'
+title: Introduction to Strobe Protocol
+description: 'A decentralized framework for zero-knowledge proof generation and verification'
 ---
 
 <img
-  className="block dark:hidden"
-  src="/images/hero-light.svg"
-  alt="Hero Light"
+className="block dark:hidden"
+src="/images/hero-light.svg"
+alt="Strobe Protocol Light"
 />
 <img
-  className="hidden dark:block"
-  src="/images/hero-dark.svg"
-  alt="Hero Dark"
+className="hidden dark:block"
+src="/images/hero-dark.svg"
+alt="Strobe Protocol Dark"
 />
 
-## Setting up
+## What is Strobe Protocol?
 
-The first step to world-class documentation is setting up your editing environments.
+Strobe Protocol is a comprehensive framework for managing zero-knowledge proofs (ZKPs) on blockchain networks. It provides a set of smart contracts and tools that enable developers to easily integrate ZKP functionality into their decentralized applications (dApps).
 
-<CardGroup cols={2}>
+## Core Primitives
+
+Strobe Protocol is built around three fundamental operations:
+
+<CardGroup cols={3}>
   <Card
-    title="Edit Your Docs"
-    icon="pen-to-square"
-    href="https://mintlify.com/docs/quickstart"
+    title="Requesting Proofs"
+    icon="file-circle-plus"
+    href="/core-concepts/requesting-proofs"
   >
-    Get your docs set up locally for easy development
+    Initiate a request for a specific zero-knowledge proof
   </Card>
   <Card
-    title="Preview Changes"
-    icon="image"
-    href="https://mintlify.com/docs/development"
+    title="Fulfilling Proof Requests"
+    icon="clipboard-check"
+    href="/core-concepts/fulfilling-requests"
   >
-    Preview your changes before you push to make sure they're perfect
+    Generate and submit proofs in response to requests
+  </Card>
+  <Card
+    title="Submitting Proofs"
+    icon="paper-plane"
+    href="/core-concepts/submitting-proofs"
+  >
+    Directly submit and verify proofs without a prior request
   </Card>
 </CardGroup>
 
-## Make it yours
+## How It Works
 
-Update your docs to your brand and add valuable content for the best user conversion.
+1. **Requesting Proofs:** Applications can request specific zero-knowledge proofs by calling the `requestProof` function on the StrobeCore contract. This function takes:
+    1. A callback address (where the verification result will be sent)
+    1. A verifier address (the contract that will verify the proof)
+    1. An IPFS hash (pointing to the proof requirements)
+
+2. **Fulfilling Proof Requests:** Provers can fulfill these requests by calling the fulfillProofRequest function, providing:
+    1. The request ID 
+    1. The generated proof
+    1. The proof inputs
+
+3. **Submitting Proofs:** For direct proof submission without a prior request, the `submitProof` function can be used, taking:
+    1. The verifier address
+    1. The proof
+    1. The proof inputs
+
+## Key Features
+
+- **Decentralized:** Runs entirely on-chain, leveraging the security and transparency of blockchain networks.
+- **Flexible:** Supports various types of zero-knowledge proofs and verifiers.
+- **Interoperable:** Can be easily integrated with existing smart contracts and dApps.
+- **Efficient:** Optimized for gas usage and performance.
+
+## Example Usage
+
+Here's a simple example of how to interact with the Strobe Protocol:
+
+```solidity
+import {IStrobeCore} from "@strobelabs/contracts/src/core/interfaces/IStrobeCore.sol";
+
+contract ExampleApp {
+    IStrobeCore private strobeCore;
+
+    constructor(address strobeCoreAddress) {
+        strobeCore = IStrobeCore(strobeCoreAddress);
+    }
+
+    function requestProof(address verifierAddress, string memory ipfsHash) external {
+        uint256 requestId = strobeCore.requestProof(address(this), verifierAddress, ipfsHash);
+    }
+
+    function onVerify(bool success, uint256 requestId) external {
+        require(msg.sender == address(strobeCore), "Only StrobeCore can call this function");
+        // Logic upon successful verification
+    }
+}
+```
+
+## Next Steps
 
 <CardGroup cols={2}>
   <Card
-    title="Customize Style"
-    icon="palette"
-    href="https://mintlify.com/docs/settings/global"
+    title="Core Concepts"
+    icon="book"
+    href="/core-concepts/overview"
   >
-    Customize your docs to your company's colors and brands
+    Dive deeper into Strobe Protocol's fundamental concepts
   </Card>
   <Card
-    title="Reference APIs"
+    title="API Reference"
     icon="code"
-    href="https://mintlify.com/docs/api-playground/openapi"
+    href="/api/strobe-core"
   >
-    Automatically generate endpoints from an OpenAPI spec
+    Explore the StrobeCore contract interface
   </Card>
   <Card
-    title="Add Components"
-    icon="screwdriver-wrench"
-    href="https://mintlify.com/docs/components/accordion"
+    title="Tutorials"
+    icon="graduation-cap"
+    href="/tutorials/first-app"
   >
-    Build interactive features and designs to guide your users
+    Build your first application with Strobe Protocol
   </Card>
   <Card
-    title="Get Inspiration"
-    icon="stars"
-    href="https://mintlify.com/customers"
+    title="Advanced Topics"
+    icon="layer-group"
+    href="/advanced/custom-verifiers"
   >
-    Check out our showcase of our favorite documentation
+    Learn about custom verifiers and advanced use cases
   </Card>
 </CardGroup>
