@@ -3,98 +3,98 @@ title: 'Quickstart'
 description: 'Get started with Strobe Protocol in under 5 minutes'
 ---
 
-## Setup your development environment
+## Integrate with Strobe
 
 Learn how to set up Strobe Protocol locally and deploy your first zero-knowledge proof application.
 
-<AccordionGroup>
-  <Accordion icon="wand-magic-sparkles" title="Initialize a new project">
-    Create a new Foundry project with Strobe Protocol:
-    ```bash
-    forge init my-strobe-app
-    cd my-strobe-app
-    
-    ```
-    This will create a new directory with a basic Foundry setup and install the Strobe Protocol contracts.
-  </Accordion>
-  <Accordion icon="wand-magic-sparkles" title="Install Strobe library">
-    Install strobe contracts to interface with teh strobe netwrok. 
+<Steps>
+  <Step title="Install Strobe contracts">
+    First, install the Strobe Protocol contracts using npm:
     ```bash
     npm install @strobelabs/contracts
     ```
-  </Accordion>
-</AccordionGroup>
+  </Step>
+  <Step title="Import Strobe interface">
+    At the top of your Solidity file, import the IStrobeCore interface:
+    ```solidity
+    pragma solidity ^0.8.25;
+    import {IStrobeCore} from "@strobelabs/contracts/src/core/interfaces/IStrobeCore.sol";
+    ```
+  </Step>
+  <Step title="Define the contract">
+    Start by declaring the StrobeCore interface:
+    ```solidity
+      contract ExampleApp {
+        IStrobeCore private strobeCore = IStrobeCore(strobeCoreAddress);
 
-### Develop
+        event ProofRequested(uint256 requestId);
+        event ProofVerified(uint256 requestId, bool success);
+      }
+      ```
+      This sets up the basic structure and initializes the StrobeCore interface in the constructor.
+  </Step>
+</Steps>
 
-Create a new file `src/ExampleApp.sol` and add the following content:
-```solidity
-pragma solidity ^0.8.25;
-import {IStrobeCore} from "strobelabs/contracts/src/core/interfaces/IStrobeCore.sol";
+## Requesting and Verifying Proofs
 
-contract ExampleApp {
-    IStrobeCore private strobeCore;
-
-    event ProofRequested(uint256 requestId);
-    event ProofVerified(uint256 requestId, bool success);
-
-    constructor(address strobeCoreAddress) {
-        strobeCore = IStrobeCore(strobeCoreAddress);
-    }
-
+<Steps>
+  <Step title="Implement proof request function">
+    Add a function to request proofs:
+    ```solidity
     function requestProof(address verifierAddress, string memory ipfsHash) external {
         uint256 requestId = strobeCore.requestProof(address(this), verifierAddress, ipfsHash);
         emit ProofRequested(requestId);
     }
-
+    ```
+    This function allows your contract to request proofs through Strobe Protocol.
+  </Step>
+  <Step title="Implement verification callback">
+    Add a callback function for proof verification:
+    ```solidity
     function onVerify(bool success, uint256 requestId) external {
         require(msg.sender == address(strobeCore), "Only StrobeCore can call this function");
         emit ProofVerified(requestId, success);
     }
-}
-```
-This contract demonstrates basic interaction with Strobe Protocol, including requesting and verifying proofs.
+    ```
+    This function will be called by StrobeCore when a proof is verified.
+  </Step>
+</Steps>
 
-Deploy your application
-<AccordionGroup>
-  <Accordion icon="rocket" title="Deploy to Sepolia testnet">
-    To deploy your contract to Sepolia, first create a `.env` file with your private key and RPC URL:
+## Deploy your application
+
+To deploy your contract:
+<Steps>
+  <Step title="Set up environment variables">
+    Create a `.env` file with your private key and RPC URL:
     ```
     PRIVATE_KEY=your_private_key_here
     SEPOLIA_RPC_URL=your_sepolia_rpc_url_here
     ```
-    Then run:
+  </Step>
+  <Step title="Deploy the contract">
+    Use Forge to deploy your contract:
     ```bash
     forge create --rpc-url $SEPOLIA_RPC_URL --private-key $PRIVATE_KEY src/ExampleApp.sol:ExampleApp --constructor-args $STROBE_CORE_ADDRESS
     ```
     Replace `$STROBE_CORE_ADDRESS` with the actual address of the StrobeCore contract on Sepolia.
-  </Accordion>
-</AccordionGroup>
+  </Step>
+</Steps>
 
 ## Next steps
 
-Now that you have a basic Strobe Protocol application up and running with Foundry, here are some next steps to explore:
+Now that you have a basic Strobe Protocol application, here are some next steps to explore:
 
 <CardGroup>
   <Card title="Customize Your Verifier" icon="wand-magic-sparkles" href="/guides/custom-verifier">
     Learn how to create and deploy custom zero-knowledge proof verifiers.
   </Card>
-  <Card
-    title="Integrate with Frontend"
-    icon="desktop"
-    href="/guides/frontend-integration">
+  <Card title="Integrate with Frontend" icon="desktop" href="/guides/frontend-integration">
     Connect your Strobe-enabled contract with a web frontend.
   </Card>
-  <Card
-    title="Advanced Proof Requests"
-    icon="layer-group"
-    href="/guides/advanced-requests">
+  <Card title="Advanced Proof Requests" icon="layer-group" href="/guides/advanced-requests">
     Explore complex proof request patterns and optimizations.
   </Card>
-  <Card
-    title="Strobe Protocol Security"
-    icon="shield-halved"
-    href="/security/best-practices">
+  <Card title="Strobe Protocol Security" icon="shield-halved" href="/security/best-practices">
     Understand security best practices when working with zero-knowledge proofs.
   </Card>
 </CardGroup>

@@ -1,5 +1,5 @@
 ---
-title: Introduction to Strobe Protocol
+title: Introduction
 description: 'A decentralized framework for zero-knowledge proof generation and verification'
 ---
 
@@ -48,20 +48,22 @@ Strobe Protocol is built around three fundamental operations:
 
 ## How It Works
 
-1. **Requesting Proofs:** Applications can request specific zero-knowledge proofs by calling the `requestProof` function on the StrobeCore contract. This function takes:
-    1. A callback address (where the verification result will be sent)
-    1. A verifier address (the contract that will verify the proof)
-    1. An IPFS hash (pointing to the proof requirements)
+Strobe Protocol leverages several key components to provide a flexible and powerful framework for zero-knowledge proof integration:
 
-2. **Fulfilling Proof Requests:** Provers can fulfill these requests by calling the fulfillProofRequest function, providing:
-    1. The request ID 
-    1. The generated proof
-    1. The proof inputs
+**ERC257: Standardized Verifier Interface**
 
-3. **Submitting Proofs:** For direct proof submission without a prior request, the `submitProof` function can be used, taking:
-    1. The verifier address
-    1. The proof
-    1. The proof inputs
+At the core of Strobe Protocol is ERC257, a standard interface for zero-knowledge proof verifiers. This standard allows for seamless integration of various types of verifiers, ensuring interoperability across different ZKP systems. Developers can create custom adapters for different types of zero-knowledge proof systems, allowing dApps to work with a wide range of ZKP technologies.
+
+```mermaid
+graph TD
+    A[dApp] -->|1. Request Proof| B(Strobe Protocol)
+    E[Prover] -->|2. Submit Proof| B
+    B -->|3. Verify Proof| C["ProofTypeGroth16 Adapter (ERC257)"]
+    C -->|4. Verify| D[Groth16 Verifier]
+    D -->|5. Result| C
+    C -->|6. Result| B
+    B -->|7. Result| A
+```
 
 ## Key Features
 
@@ -69,31 +71,17 @@ Strobe Protocol is built around three fundamental operations:
 - **Flexible:** Supports various types of zero-knowledge proofs and verifiers.
 - **Interoperable:** Can be easily integrated with existing smart contracts and dApps.
 - **Efficient:** Optimized for gas usage and performance.
+- **Extensible:** Allows for the creation of custom verifier adapters to support new ZKP systems.
 
-## Example Usage
+## Use Cases
 
-Here's a simple example of how to interact with the Strobe Protocol:
+dApps can integrate Strobe Protocol and its verifiers in various ways, depending on their specific use cases:
 
-```solidity
-import {IStrobeCore} from "@strobelabs/contracts/src/core/interfaces/IStrobeCore.sol";
+1. **Prediction Markets:** Utilize ZK-email proofs to resolve outcomes in decentralized prediction markets.
+2. **ZK-ERC20 Tokens:** Create tokens that can only be minted by providing a valid zero-knowledge proof.
+3. **Identity Verification:** Implement privacy-preserving identity checks using ZKPs.
+4. **Confidential Transactions:** Enable private transactions with selective disclosure using ZKPs.
 
-contract ExampleApp {
-    IStrobeCore private strobeCore;
-
-    constructor(address strobeCoreAddress) {
-        strobeCore = IStrobeCore(strobeCoreAddress);
-    }
-
-    function requestProof(address verifierAddress, string memory ipfsHash) external {
-        uint256 requestId = strobeCore.requestProof(address(this), verifierAddress, ipfsHash);
-    }
-
-    function onVerify(bool success, uint256 requestId) external {
-        require(msg.sender == address(strobeCore), "Only StrobeCore can call this function");
-        // Logic upon successful verification
-    }
-}
-```
 
 ## Next Steps
 
