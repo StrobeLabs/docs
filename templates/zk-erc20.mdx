@@ -1,0 +1,99 @@
+---
+title: 'ZK-ERC20'
+description: 'Create your own zero-knowledge ERC20 tokens with Strobe Protocol'
+icon: 'code'
+---
+
+## Introduction
+
+zkERC20 is a powerful extension of the standard ERC20 token, incorporating zero-knowledge proof verification for minting tokens. This template allows you to create customized tokens that leverage the privacy and security benefits of zero-knowledge proofs.
+
+**Use Cases**
+
+- Privacy-preserving tokens
+- Conditional minting based on off-chain data
+- Implementing unique token distribution mechanisms
+
+
+## Step-by-Step Guide
+
+<Steps>
+  <Step title="Create Circuit and Verifier">
+    1. Visit [registry-dev.zkregex.com](https://registry-dev.zkregex.com).
+    2. Use the interface to create your desired circuit.
+    3. Generate the corresponding verifier.
+    4. Note down the verifier address provided by the platform.
+  </Step>
+  <Step title="Install Strobe contracts">
+    Install the Strobe Protocol contracts using npm:
+    ```bash
+    npm install @strobelabs/contracts
+    ```
+  </Step>
+  <Step title="Create ProofTypeGroth16 Verifier">
+    Create a new contract that extends the ProofTypeGroth16 adapter:
+
+    ```solidity
+    import "@strobelabs/contracts/src/core/adapters/ProofTypeGroth16.sol";
+
+    contract MyVerifier is ProofTypeGroth16 {
+        constructor(address originalVerifier) ProofTypeGroth16(originalVerifier) {}
+    }
+    ```
+
+    Replace `originalVerifier` with the address noted in Step 1.
+
+  </Step>
+  <Step title="Deploy Verifiers">
+    1. Deploy the original verifier (if not already deployed by the registry).
+    2. Deploy your `MyVerifier` contract, passing the original verifier's address.
+  </Step>
+  <Step title="Create zkERC20 Token">
+    Create your token contract, inheriting from ZkERC20:
+    ```solidity
+    import "@strobelabs/contracts/src/core/tokens/ZkERC20.sol";
+
+    contract MyZkToken is ZkERC20 {
+        constructor(address verifierAddress) ZkERC20("MyZkToken", "MZT", verifierAddress) {}
+    }
+    ```
+
+    Replace `"MyZkToken"`, `"MZT"`, and `verifierAddress` with your desired values.
+  </Step>
+  <Step title="Deploy zkERC20 Token">
+    Deploy your `MyZkToken` contract, passing the address of your `MyVerifier` contract.
+  </Step>
+</Steps>
+
+  
+### Advanced Usage: Custom Minting Logic
+
+For more complex scenarios, you can override the `interpretSignals` method to implement custom minting logic:
+
+```solidity
+contract MyZkToken is ZkERC20 {
+    constructor(address verifierAddress) ZkERC20("MyZkToken", "MZT", verifierAddress) {}
+
+    function interpretSignals(bytes calldata signals) internal override returns (uint256) {
+        // Custom logic to interpret signals and determine mint amount
+        uint256 numberOfTokens = abi.decode(signals, (uint256));
+        return numberOfTokens * 10**decimals();
+    }
+}
+```
+
+This example decodes the number of tokens to mint from the proof signals.
+
+## Next Steps
+
+<CardGroup>
+  <Card title="Customize Your Circuit" icon="puzzle-piece" href="/guides/custom-circuits">
+    Learn how to create more complex circuits for advanced use cases.
+  </Card>
+  <Card title="Frontend Integration" icon="desktop" href="/guides/frontend-integration">
+    Build a user interface for interacting with your zkERC20 token.
+  </Card>
+  <Card title="Security Best Practices" icon="shield-halved" href="/security/zk-token-security">
+    Understand the security considerations for zkERC20 tokens.
+  </Card>
+</CardGroup>

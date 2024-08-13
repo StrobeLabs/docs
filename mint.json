@@ -26,7 +26,6 @@
     "url": "https://strobe.org"
   },
   "anchors": [
-    
     {
       "name": "Community",
       "icon": "twitter",
@@ -44,6 +43,12 @@
       "pages": [
         "introduction",
         "quickstart"
+      ]
+    },
+    {
+      "group": "Templates",
+      "pages": [
+        "templates/zk-erc20"
       ]
     }
   ],
