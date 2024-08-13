@@ -6,7 +6,7 @@ icon: 'code'
 
 ## Introduction
 
-zkERC20 is a powerful extension of the standard ERC20 token, incorporating zero-knowledge proof verification for minting tokens. This template allows you to create customized tokens that leverage the privacy and security benefits of zero-knowledge proofs.
+ZK-ERC20 is a powerful extension of the standard ERC20 token, incorporating zero-knowledge proof verification for minting tokens. This template allows you to create customized tokens that leverage the privacy and security benefits of zero-knowledge proofs.
 
 **Use Cases**
 
@@ -22,7 +22,7 @@ zkERC20 is a powerful extension of the standard ERC20 token, incorporating zero-
     1. Visit [registry-dev.zkregex.com](https://registry-dev.zkregex.com).
     2. Use the interface to create your desired circuit.
     3. Generate the corresponding verifier.
-    4. Note down the verifier address provided by the platform.
+    4. Note down the verifier address provided by the platform - we will refer to this as the "original verifier". 
   </Step>
   <Step title="Install Strobe contracts">
     Install the Strobe Protocol contracts using npm:
@@ -30,14 +30,14 @@ zkERC20 is a powerful extension of the standard ERC20 token, incorporating zero-
     npm install @strobelabs/contracts
     ```
   </Step>
-  <Step title="Create ProofTypeGroth16 Verifier">
-    Create a new contract that extends the ProofTypeGroth16 adapter:
+  <Step title="Create ProofTypeZKEmail Verifier">
+    Create a new contract that extends the ProofTypeZKEmail adapter:
 
     ```solidity
-    import "@strobelabs/contracts/src/core/adapters/ProofTypeGroth16.sol";
+    import "@strobelabs/contracts/src/proof-types/ProofTypeZKEmail.sol";
 
-    contract MyVerifier is ProofTypeGroth16 {
-        constructor(address originalVerifier) ProofTypeGroth16(originalVerifier) {}
+    contract MyVerifier is ProofTypeZKEmail {
+        constructor(address originalVerifier, uint256 inputSize) ProofTypeZKEmail(originalVerifier, inputSize) {}
     }
     ```
 
@@ -48,31 +48,30 @@ zkERC20 is a powerful extension of the standard ERC20 token, incorporating zero-
     1. Deploy the original verifier (if not already deployed by the registry).
     2. Deploy your `MyVerifier` contract, passing the original verifier's address.
   </Step>
-  <Step title="Create zkERC20 Token">
-    Create your token contract, inheriting from ZkERC20:
+  <Step title="Create ZK-ERC20 Token">
+    Create your token contract, inheriting from ZKERC20:
     ```solidity
-    import "@strobelabs/contracts/src/core/tokens/ZkERC20.sol";
+    import "@strobelabs/contracts/src/core/tokens/ZKERC20.sol";
 
-    contract MyZkToken is ZkERC20 {
-        constructor(address verifierAddress) ZkERC20("MyZkToken", "MZT", verifierAddress) {}
+    contract MyZkToken is ZKERC20 {
+        constructor(address verifierAddress) ZKERC20("MyZkToken", "MZT", verifierAddress) {}
     }
     ```
 
     Replace `"MyZkToken"`, `"MZT"`, and `verifierAddress` with your desired values.
   </Step>
-  <Step title="Deploy zkERC20 Token">
+  <Step title="Deploy ZK-ERC20 Token">
     Deploy your `MyZkToken` contract, passing the address of your `MyVerifier` contract.
   </Step>
 </Steps>
 
-  
 ### Advanced Usage: Custom Minting Logic
 
 For more complex scenarios, you can override the `interpretSignals` method to implement custom minting logic:
 
 ```solidity
-contract MyZkToken is ZkERC20 {
-    constructor(address verifierAddress) ZkERC20("MyZkToken", "MZT", verifierAddress) {}
+contract MyZkToken is ZKERC20 {
+    constructor(address verifierAddress) ZKERC20("MyZkToken", "MZT", verifierAddress) {}
 
     function interpretSignals(bytes calldata signals) internal override returns (uint256) {
         // Custom logic to interpret signals and determine mint amount
@@ -91,9 +90,9 @@ This example decodes the number of tokens to mint from the proof signals.
     Learn how to create more complex circuits for advanced use cases.
   </Card>
   <Card title="Frontend Integration" icon="desktop" href="/guides/frontend-integration">
-    Build a user interface for interacting with your zkERC20 token.
+    Build a user interface for interacting with your ZK-ERC20 token.
   </Card>
   <Card title="Security Best Practices" icon="shield-halved" href="/security/zk-token-security">
-    Understand the security considerations for zkERC20 tokens.
+    Understand the security considerations for ZK-ERC20 tokens.
   </Card>
 </CardGroup>
