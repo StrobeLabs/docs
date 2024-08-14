@@ -51,14 +51,15 @@ ZK-ERC20 is a powerful extension of the standard ERC20 token, incorporating zero
   <Step title="Create ZK-ERC20 Token">
     Create your token contract, inheriting from ZKERC20:
     ```solidity
-    import "@strobelabs/contracts/src/core/tokens/ZKERC20.sol";
+    import "@strobelabs/contracts/src/templates/ZKERC20.sol";
 
     contract MyZkToken is ZKERC20 {
-        constructor(address verifierAddress) ZKERC20("MyZkToken", "MZT", verifierAddress) {}
+        constructor(address verifierAddress) ZKERC20("MyZkToken", "MZT", 0xB3E387886b0Bf305d166470F032e3ED89CD95F96, verifierAddress) {}
     }
     ```
 
-    Replace `"MyZkToken"`, `"MZT"`, and `verifierAddress` with your desired values.
+    1. `0xB3E387886b0Bf305d166470F032e3ED89CD95F96` is the Strobe Core contract.
+    2. Replace `"MyZkToken"`, `"MZT"`, with your desired values.
   </Step>
   <Step title="Deploy ZK-ERC20 Token">
     Deploy your `MyZkToken` contract, passing the address of your `MyVerifier` contract.
@@ -71,12 +72,12 @@ For more complex scenarios, you can override the `interpretSignals` method to im
 
 ```solidity
 contract MyZkToken is ZKERC20 {
-    constructor(address verifierAddress) ZKERC20("MyZkToken", "MZT", verifierAddress) {}
+    constructor(address verifierAddress) ZKERC20("MyZkToken", "MZT", 0xB3E387886b0Bf305d166470F032e3ED89CD95F96, verifierAddress) {}
 
-    function interpretSignals(bytes calldata signals) internal override returns (uint256) {
+    function interpretSignals(bytes calldata signals) internal view override returns (uint256) {
         // Custom logic to interpret signals and determine mint amount
         uint256 numberOfTokens = abi.decode(signals, (uint256));
-        return numberOfTokens * 10**decimals();
+        return numberOfTokens * 10 ** decimals();
     }
 }
 ```
