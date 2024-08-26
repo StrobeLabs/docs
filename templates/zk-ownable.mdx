@@ -1,0 +1,120 @@
+---
+title: 'ZK-Ownable'
+description: 'Create zero-knowledge proof-based ownership contracts with Strobe Protocol'
+icon: 'lock'
+---
+
+## Introduction
+
+ZK-Ownable is an extension of the standard Ownable contract, enhanced with zero-knowledge proof verification for claiming ownership. This approach allows the ownership of a contract to be transferred securely based on privacy-preserving proofs, adding a new layer of security and flexibility.
+
+**Use Cases**
+
+- Secure ownership transfers using zero-knowledge proofs
+- Privacy-preserving contract ownership mechanisms
+- Enforcing off-chain logic or conditions before ownership changes
+
+## Step-by-Step Guide
+
+<Steps>
+  <Step title="Create Circuit and Verifier">
+    1. Visit [registry-dev.zkregex.com](https://registry-dev.zkregex.com).
+    2. Use the interface to create your desired circuit.
+    3. Generate the corresponding verifier.
+    4. Note down the verifier address provided by the platform - we will refer to this as the "original verifier". 
+  </Step>
+  <Step title="Install Strobe contracts">
+    Install the Strobe Protocol contracts using npm:
+    ```bash
+    npm install @strobelabs/contracts
+    ```
+  </Step>
+  <Step title="Create ProofTypeZKEmail Verifier">
+    Create a new contract that extends the ProofTypeZKEmail adapter:
+
+    ```solidity
+    import "@strobelabs/contracts/src/proof-types/ProofTypeZKEmail.sol";
+
+    contract MyVerifier is ProofTypeZKEmail {
+        constructor(address originalVerifier, uint256 inputSize) ProofTypeZKEmail(originalVerifier, inputSize) {}
+    }
+    ```
+
+    Replace `originalVerifier` with the address noted in Step 1.
+
+  </Step>
+  <Step title="Deploy Verifiers">
+    1. Deploy the original verifier (if not already deployed by the registry).
+    2. Deploy your `MyVerifier` contract, passing the original verifier's address.
+  </Step>
+  <Step title="Create A Contract">
+    Create your smart contract which you want to add ZK-Ownable to:
+    ```solidity
+    import "@strobelabs/contracts/src/templates/ZKOwnable.sol";
+
+    contract MyContract is ZKOwnable {
+        constructor(
+        address strobeCoreAddress,
+        address initialOwner,
+        address initialVerifier
+    )
+        ZKOwnable(strobeCoreAddress, initialOwner, initialVerifier) {}
+    }
+    ```
+
+    1. `0xB3E387886b0Bf305d166470F032e3ED89CD95F96` is the Strobe Core contract.
+    2. `initialOwner` is the first owner of your contract.
+    3. `initialVerifier` is the verifier that is used to check eligibility to claim ownership.
+  </Step>
+  <Step title="Deploy ZK-Ownable Contract">
+    Deploy `MyContract`, passing in the address of the contract's first owner and the address of the `MyVerifier` contract.
+  </Step>
+  <Step title="Adding onlyOwner">
+    Since we extended `ZKOwnable.sol`, we can gate functions using the `onlyOwner` modifier and allow users to claim ownership given a valid proof using `claimOwnership`. We can even allow new owners to change the verifier address required to claim ownership with `setOwnershipVerifier`. These features are included with the `ZK-Ownable` template that we extended.
+  </Step>
+</Steps>
+
+## Example Usage: SetNumber Contract
+
+Here is an example contract, `SetNumber`, which inherits from `ZKOwnable`. The contract allows only the owner to update the stored number.
+
+```solidity
+import "@strobelabs/contracts/templates/ZKOwnable.sol";
+
+contract SetNumber is ZKOwnable {
+    uint256 public number;
+
+    constructor(
+        address strobeCoreAddress,
+        address initialOwner,
+        address initialVerifier,
+        uint256 initialNumber
+    )
+        ZKOwnable(strobeCoreAddress, initialOwner, initialVerifier)
+    {
+        number = initialNumber;
+    }
+
+    function setNumber(uint256 newNumber) external onlyOwner {
+        number = newNumber;
+    }
+
+    function getNumber() external view returns (uint256) {
+        return number;
+    }
+}
+```
+
+## Next Steps
+
+<CardGroup>
+  <Card title="Customize Your Circuit" icon="puzzle-piece" href="/guides/custom-circuits">
+    Learn how to create more complex circuits for advanced use cases.
+  </Card>
+  <Card title="Frontend Integration" icon="desktop" href="/guides/frontend-integration">
+    Build a user interface for interacting with ZK-Ownable contracts.
+  </Card>
+  <Card title="Security Best Practices" icon="shield-halved" href="/security/zk-token-security">
+    Understand the security considerations for ZK-Ownable.
+  </Card>
+</CardGroup>

@@ -48,7 +48,8 @@
     {
       "group": "Templates",
       "pages": [
-        "templates/zk-erc20"
+        "templates/zk-erc20",
+        "templates/zk-ownable"
       ]
     }
   ],
