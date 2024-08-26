@@ -14,6 +14,66 @@ ZK-Ownable is an extension of the standard Ownable contract, enhanced with zero-
 - Privacy-preserving contract ownership mechanisms
 - Enforcing off-chain logic or conditions before ownership changes
 
+## Step-by-Step Guide
+
+<Steps>
+  <Step title="Create Circuit and Verifier">
+    1. Visit [registry-dev.zkregex.com](https://registry-dev.zkregex.com).
+    2. Use the interface to create your desired circuit.
+    3. Generate the corresponding verifier.
+    4. Note down the verifier address provided by the platform - we will refer to this as the "original verifier". 
+  </Step>
+  <Step title="Install Strobe contracts">
+    Install the Strobe Protocol contracts using npm:
+    ```bash
+    npm install @strobelabs/contracts
+    ```
+  </Step>
+  <Step title="Create ProofTypeZKEmail Verifier">
+    Create a new contract that extends the ProofTypeZKEmail adapter:
+
+    ```solidity
+    import "@strobelabs/contracts/src/proof-types/ProofTypeZKEmail.sol";
+
+    contract MyVerifier is ProofTypeZKEmail {
+        constructor(address originalVerifier, uint256 inputSize) ProofTypeZKEmail(originalVerifier, inputSize) {}
+    }
+    ```
+
+    Replace `originalVerifier` with the address noted in Step 1.
+
+  </Step>
+  <Step title="Deploy Verifiers">
+    1. Deploy the original verifier (if not already deployed by the registry).
+    2. Deploy your `MyVerifier` contract, passing the original verifier's address.
+  </Step>
+  <Step title="Create A Contract">
+    Create your smart contract which you want to add ZK-Ownable to:
+    ```solidity
+    import "@strobelabs/contracts/src/templates/ZKOwnable.sol";
+
+    contract MyContract is ZKOwnable {
+        constructor(
+        address strobeCoreAddress,
+        address initialOwner,
+        address initialVerifier
+    )
+        ZKOwnable(strobeCoreAddress, initialOwner, initialVerifier) {}
+    }
+    ```
+
+    1. `0xB3E387886b0Bf305d166470F032e3ED89CD95F96` is the Strobe Core contract.
+    2. `initialOwner` is the first owner of your contract.
+    3. `initialVerifier` is the verifier that is used to check eligibility to claim ownership.
+  </Step>
+  <Step title="Deploy ZK-Ownable Contract">
+    Deploy `MyContract`, passing in the address of the contract's first owner and the address of the `MyVerifier` contract.
+  </Step>
+  <Step title="Adding onlyOwner">
+    Since we extended `ZKOwnable.sol`, we can gate functions using the `onlyOwner` modifier and allow users to claim ownership given a valid proof using `claimOwnership`. We can even allow new owners to change the verifier address required to claim ownership with `setOwnershipVerifier`. These features are included with the `ZK-Ownable` template that we extended.
+  </Step>
+</Steps>
+
 ## Example Usage: SetNumber Contract
 
 Here is an example contract, `SetNumber`, which inherits from `ZKOwnable`. The contract allows only the owner to update the stored number.
