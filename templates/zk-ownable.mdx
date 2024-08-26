@@ -1,0 +1,60 @@
+---
+title: 'ZK-Ownable'
+description: 'Create zero-knowledge proof-based ownership contracts with Strobe Protocol'
+icon: 'lock'
+---
+
+## Introduction
+
+ZK-Ownable is an extension of the standard Ownable contract, enhanced with zero-knowledge proof verification for claiming ownership. This approach allows the ownership of a contract to be transferred securely based on privacy-preserving proofs, adding a new layer of security and flexibility.
+
+**Use Cases**
+
+- Secure ownership transfers using zero-knowledge proofs
+- Privacy-preserving contract ownership mechanisms
+- Enforcing off-chain logic or conditions before ownership changes
+
+## Example Usage: SetNumber Contract
+
+Here is an example contract, `SetNumber`, which inherits from `ZKOwnable`. The contract allows only the owner to update the stored number.
+
+```solidity
+import "@strobelabs/contracts/templates/ZKOwnable.sol";
+
+contract SetNumber is ZKOwnable {
+    uint256 public number;
+
+    constructor(
+        address strobeCoreAddress,
+        address initialOwner,
+        address initialVerifier,
+        uint256 initialNumber
+    )
+        ZKOwnable(strobeCoreAddress, initialOwner, initialVerifier)
+    {
+        number = initialNumber;
+    }
+
+    function setNumber(uint256 newNumber) external onlyOwner {
+        number = newNumber;
+    }
+
+    function getNumber() external view returns (uint256) {
+        return number;
+    }
+}
+```
+
+## Next Steps
+
+<CardGroup>
+  <Card title="Customize Your Circuit" icon="puzzle-piece" href="/guides/custom-circuits">
+    Learn how to create more complex circuits for advanced use cases.
+  </Card>
+  <Card title="Frontend Integration" icon="desktop" href="/guides/frontend-integration">
+    Build a user interface for interacting with ZK-Ownable contracts.
+  </Card>
+  <Card title="Security Best Practices" icon="shield-halved" href="/security/zk-token-security">
+    Understand the security considerations for ZK-Ownable.
+  </Card>
+</CardGroup>
